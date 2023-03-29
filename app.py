@@ -1,25 +1,34 @@
 import streamlit as st
-from helper import update_secondary_col, ConvertPdfToX
+from helper import update_secondary_col, ConvertPdfToX, ConvertImageToPdf
 from io import BytesIO
 
 st.header("Convert your files from one format to another: ")
 
-with st.form("format-chooser"):
-    col1, col2 = st.columns(2)
 
-    with col1:
-        primary_format = st.selectbox("Select the format of your file: ", options=["pdf", "png"])
-    with col2:
-        secondary_format = st.selectbox("Select the format you want to convert your file: ", options=update_secondary_col(primary_col=primary_format))
-    
-    uploaded_file = st.file_uploader("Choose a file") 
+col1, col2 = st.columns(2)
 
-    submitted = st.form_submit_button("Convert")
+with col1:
+    primary_format = st.selectbox("Select the format of your file: ", options=["jpg", "png", "pdf"])
+with col2:
+    secondary_format = st.selectbox("Select the format you want to convert your file: ", options=update_secondary_col(primary_col=primary_format))
+
+if primary_format == "pdf":
+    uploaded_files = st.file_uploader("Choose a file")
+else:
+    uploaded_files = st.file_uploader("Choose a file", accept_multiple_files=True)
+
+submitted = st.button("Convert")
 
 
-if uploaded_file is not None:
+if submitted:
 
-    with st.spinner("Converting..."):
-        pdf_bytes = BytesIO(uploaded_file.read()).getvalue()
-        file_name =  str(uploaded_file.name).split(".")[0]
-        ConvertPdfToX().convert(secondary_format=secondary_format, pdf_bytes=pdf_bytes, pdf_filename=file_name)
+    if uploaded_files is not None:
+        
+        if primary_format == "pdf":
+            with st.spinner("Converting..."):
+                pdf_bytes = BytesIO(uploaded_files.read()).getvalue()
+                file_name =  str(uploaded_files.name).split(".")[0]
+                ConvertPdfToX().convert(secondary_format=secondary_format, pdf_bytes=pdf_bytes, pdf_filename=file_name)
+            
+        else:
+            ConvertImageToPdf().convert(uploaded_files=uploaded_files)
