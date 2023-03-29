@@ -8,7 +8,7 @@ from datetime import datetime
 
 def update_secondary_col(primary_col):
 
-    secondary_format_list = ["png", "jpg", "jpeg", "pdf"]
+    secondary_format_list = ["jpeg", "png", "jpg", "pdf"]
 
     secondary_format_list.remove(primary_col)
 
