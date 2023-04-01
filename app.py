@@ -12,7 +12,7 @@ worker_option = st.selectbox("Selet the Option: ", options=["Resizer", "Converto
 
 if worker_option == "Resizer":
     
-    resizer_option = st.selectbox("Select your Prefered Resizer: ", options=["Percentage", "Dimensions", "File Size"])
+    resizer_option = st.selectbox("Select your Prefered Resizer: ", options=["Percentage", "Dimensions", "Image Size"])
 
     uploaded_files = st.file_uploader("Choose a file")
 
@@ -39,6 +39,21 @@ if worker_option == "Resizer":
             if st.button("Resize The Image"):
                 Resizer().dimension_resizing(height=height, width=width, uploaded_file=uploaded_files)
     
+
+        elif resizer_option == "Image Size":
+
+            image_size = st.number_input("Enter the size of the image you want to resize to: ", min_value=1, step=1)
+            image_size_format = st.selectbox("Enter the Image size type: ", options=["KB", "MB"])
+            
+            check = Resizer().image_size_resizing_check(uploaded_file=uploaded_files, image_size=image_size, size_format=image_size_format)
+
+            if check:
+
+                if st.button("Resize Image"):
+                    Resizer().image_size_resizing(uploaded_file=uploaded_files, image_size=image_size, size_format=image_size_format)
+
+
+
 elif worker_option == "Convertor":
 
 

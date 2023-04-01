@@ -215,3 +215,72 @@ class Resizer:
                 encoded = base64.b64encode(f.read()).decode()
 
             download_button(encoded=encoded, file_name="resizedimages")
+
+    
+    def image_size_resizing_check(self, uploaded_file, image_size, size_format):
+
+        mb_threshold = 1024 * 1024 
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+
+            with open(os.path.join(temp_dir, uploaded_file.name), "wb") as f:
+                    f.write(uploaded_file.getbuffer())
+
+            file_size = os.path.getsize("{}/{}".format(temp_dir, uploaded_file.name))
+            size_kb = int(file_size / 1024)
+
+            if size_format == "MB":
+                kb = int(image_size * 1024)
+            else:
+                kb = int(image_size)
+            
+            if kb > size_kb:
+                st.error("Your Original image size is {}kb so you cannot resize the image to {}kb.".format(size_kb, kb))
+
+                return False
+            else:
+                return True
+
+
+    def image_size_resizing(self, uploaded_file, image_size, size_format):
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+
+            with open(os.path.join(temp_dir, uploaded_file.name), "wb") as f:
+                    f.write(uploaded_file.getbuffer())
+
+            img = Image.open("{}/{}".format(temp_dir, uploaded_file.name))
+
+            # Define the target file size in bytes (50KB)
+            if size_format == "KB":
+                target_size = image_size * 1024
+            else:
+                target_size = image_size * 1024 * 1024
+
+            # Loop until the target size is reached
+            while True:
+                # Resize the image to half of its original size
+                width, height = img.size
+                img = img.resize((width // 2, height // 2), Image.ANTIALIAS)
+                
+                # Compress the image to a PNG file
+                image_path = "{}/output.{}".format(temp_dir, str(uploaded_file.name).split(".")[-1])
+                img.save(image_path, optimize=True)
+                
+                # Check the file size
+                if os.path.getsize(image_path) <= target_size:
+                    break
+
+            # Save the final image
+            img_format = str(uploaded_file.name).split(".")[-1]
+            img.save("{}/resized.{}".format(temp_dir,img_format ))
+
+            zip_path = os.path.join(temp_dir, "images.zip")
+            image_path = os.path.join(temp_dir, "resized.{}".format(img_format))
+            with zipfile.ZipFile(zip_path, "w") as zip:
+                zip.write(image_path,  "resized.{}".format(img_format))
+            
+            with open(zip_path, "rb") as f:
+                encoded = base64.b64encode(f.read()).decode()
+
+            download_button(encoded=encoded, file_name="resizedimages")
