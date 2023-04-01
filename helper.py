@@ -25,7 +25,7 @@ def download_button(encoded, file_name):
     st.markdown(
                     f"""
                     <a href="data:application/zip;base64,{encoded}" download="{file_name}_{formatted_date_time}.zip">
-                        <h3>Download Images</h3>
+                        <h3>Download</h3>
                     </a>
                     """,
                     unsafe_allow_html=True,
@@ -115,4 +115,58 @@ class ConvertImageToImage:
                 encoded = base64.b64encode(f.read()).decode()
 
             download_button(encoded=encoded, file_name="converted_images")
-                
+
+
+class Resizer:
+
+    def __init__(self) -> None:
+        pass
+    
+    def percentage_resize_details(self, percentage_value, uploaded_file):
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+
+            with open(os.path.join(temp_dir, uploaded_file.name), "wb") as f:
+                    f.write(uploaded_file.getbuffer())
+
+            img_path = os.path.join(temp_dir, uploaded_file.name)
+
+            img = Image.open(img_path)
+
+            width, height = img.size
+
+            new_width = int(width * (percentage_value/100))
+            new_height = int(height * (percentage_value/100))
+
+            return new_height, new_width
+        
+
+    def percentage_resizing(self, percentage_value, uploaded_file):
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+
+            with open(os.path.join(temp_dir, uploaded_file.name), "wb") as f:
+                    f.write(uploaded_file.getbuffer())
+
+            img_path = os.path.join(temp_dir, uploaded_file.name)
+
+            img = Image.open(img_path)
+
+            width, height = img.size
+
+            new_width = int(width * (percentage_value/100))
+            new_height = int(height * (percentage_value/100))
+
+            img = img.resize((new_width, new_height), Image.ANTIALIAS)
+            img_format = str(uploaded_file.name).split(".")[-1]
+            img.save("{}/resized.{}".format(temp_dir, img_format))
+
+            zip_path = os.path.join(temp_dir, "images.zip")
+            image_path = os.path.join(temp_dir, "resized.{}".format(img_format))
+            with zipfile.ZipFile(zip_path, "w") as zip:
+                zip.write(image_path,  "resized.{}".format(img_format))
+            
+            with open(zip_path, "rb") as f:
+                encoded = base64.b64encode(f.read()).decode()
+
+            download_button(encoded=encoded, file_name="resizedimages")

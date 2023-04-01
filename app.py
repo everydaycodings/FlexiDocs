@@ -1,5 +1,5 @@
 import streamlit as st
-from helper import update_secondary_col, ConvertPdfToX, ConvertImageToPdf, ConvertImageToImage
+from helper import update_secondary_col, ConvertPdfToX, ConvertImageToPdf, ConvertImageToImage, Resizer
 from io import BytesIO
 
 
@@ -7,39 +7,62 @@ imagetopdf = ["jpg", "png", "jpeg"]
 imagetoimage_primary = ["jpg", "png", "jpeg"]
 imagetoimage_secondry = ["jpg", "png", "jpeg"]
 
-st.header("Convert your files from one format to another: ")
+worker_option = st.selectbox("Selet the Option: ", options=["Resizer", "Convertor"])
 
 
-col1, col2 = st.columns(2)
+if worker_option == "Resizer":
+    
+    resizer_option = st.selectbox("Select your Prefered Resizer: ", options=["Percentage", "Dimentions", "File Size"])
 
-with col1:
-    primary_format = st.selectbox("Select the format of your file: ", options=["jpg", "jpeg", "png", "pdf"])
-with col2:
-    secondary_format = st.selectbox("Select the format you want to convert your file: ", options=update_secondary_col(primary_col=primary_format))
-
-if primary_format == "pdf":
     uploaded_files = st.file_uploader("Choose a file")
-elif primary_format in imagetopdf and secondary_format in ["pdf"]:
-    uploaded_files = st.file_uploader("Choose a file", accept_multiple_files=True)
-elif primary_format in imagetoimage_primary and secondary_format in imagetoimage_secondry:
-    uploaded_files = st.file_uploader("Choose a file")
-
-submitted = st.button("Convert")
-
-
-if submitted:
 
     if uploaded_files is not None:
-        
-        if primary_format == "pdf":
-            with st.spinner("Converting..."):
-                pdf_bytes = BytesIO(uploaded_files.read()).getvalue()
-                file_name =  str(uploaded_files.name).split(".")[0]
-                ConvertPdfToX().convert(secondary_format=secondary_format, pdf_bytes=pdf_bytes, pdf_filename=file_name)
-            
-        elif primary_format in imagetopdf and secondary_format in ["pdf"]:
-            ConvertImageToPdf().convert(uploaded_files=uploaded_files)
+        if resizer_option == "Percentage":
 
-        
-        elif primary_format in imagetoimage_primary and secondary_format in imagetoimage_secondry:
-            ConvertImageToImage().convert(secondary_format, uploaded_files)
+            percenatge_value = st.number_input("Enter the Percentage you want to reduce to: ", min_value=1, max_value=100, step=1, value=70)
+            
+            height, width = Resizer().percentage_resize_details(uploaded_file=uploaded_files, percentage_value=percenatge_value)
+            st.warning("You want to set the new size to be 90% of the original size which is {}*{}".format(width, height))
+
+            if st.button("Resize"):
+                Resizer().percentage_resizing(percentage_value=percenatge_value, uploaded_file=uploaded_files)
+
+elif worker_option == "Convertor":
+
+
+    st.header("Convert your files from one format to another: ")
+
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        primary_format = st.selectbox("Select the format of your file: ", options=["jpg", "jpeg", "png", "pdf"])
+    with col2:
+        secondary_format = st.selectbox("Select the format you want to convert your file: ", options=update_secondary_col(primary_col=primary_format))
+
+    if primary_format == "pdf":
+        uploaded_files = st.file_uploader("Choose a file")
+    elif primary_format in imagetopdf and secondary_format in ["pdf"]:
+        uploaded_files = st.file_uploader("Choose a file", accept_multiple_files=True)
+    elif primary_format in imagetoimage_primary and secondary_format in imagetoimage_secondry:
+        uploaded_files = st.file_uploader("Choose a file")
+
+    submitted = st.button("Convert")
+
+
+    if submitted:
+
+        if uploaded_files is not None:
+            
+            if primary_format == "pdf":
+                with st.spinner("Converting..."):
+                    pdf_bytes = BytesIO(uploaded_files.read()).getvalue()
+                    file_name =  str(uploaded_files.name).split(".")[0]
+                    ConvertPdfToX().convert(secondary_format=secondary_format, pdf_bytes=pdf_bytes, pdf_filename=file_name)
+                
+            elif primary_format in imagetopdf and secondary_format in ["pdf"]:
+                ConvertImageToPdf().convert(uploaded_files=uploaded_files)
+
+            
+            elif primary_format in imagetoimage_primary and secondary_format in imagetoimage_secondry:
+                ConvertImageToImage().convert(secondary_format, uploaded_files)
