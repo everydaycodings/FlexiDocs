@@ -170,3 +170,48 @@ class Resizer:
                 encoded = base64.b64encode(f.read()).decode()
 
             download_button(encoded=encoded, file_name="resizedimages")
+    
+
+    def image_dimensions(self, uploaded_file):
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+
+            with open(os.path.join(temp_dir, uploaded_file.name), "wb") as f:
+                    f.write(uploaded_file.getbuffer())
+
+            img_path = os.path.join(temp_dir, uploaded_file.name)
+
+            img = Image.open(img_path)
+
+            width, height = img.size
+
+            return width, height
+        
+
+    def dimension_resizing(self, height, width, uploaded_file):
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+
+            with open(os.path.join(temp_dir, uploaded_file.name), "wb") as f:
+                    f.write(uploaded_file.getbuffer())
+
+            img_path = os.path.join(temp_dir, uploaded_file.name)
+
+            img = Image.open(img_path)
+
+            new_width = width
+            new_height = height
+
+            img = img.resize((new_width, new_height), Image.ANTIALIAS)
+            img_format = str(uploaded_file.name).split(".")[-1]
+            img.save("{}/resized.{}".format(temp_dir, img_format))
+
+            zip_path = os.path.join(temp_dir, "images.zip")
+            image_path = os.path.join(temp_dir, "resized.{}".format(img_format))
+            with zipfile.ZipFile(zip_path, "w") as zip:
+                zip.write(image_path,  "resized.{}".format(img_format))
+            
+            with open(zip_path, "rb") as f:
+                encoded = base64.b64encode(f.read()).decode()
+
+            download_button(encoded=encoded, file_name="resizedimages")

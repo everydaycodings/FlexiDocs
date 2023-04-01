@@ -12,11 +12,12 @@ worker_option = st.selectbox("Selet the Option: ", options=["Resizer", "Converto
 
 if worker_option == "Resizer":
     
-    resizer_option = st.selectbox("Select your Prefered Resizer: ", options=["Percentage", "Dimentions", "File Size"])
+    resizer_option = st.selectbox("Select your Prefered Resizer: ", options=["Percentage", "Dimensions", "File Size"])
 
     uploaded_files = st.file_uploader("Choose a file")
 
     if uploaded_files is not None:
+
         if resizer_option == "Percentage":
 
             percenatge_value = st.number_input("Enter the Percentage you want to reduce to: ", min_value=1, max_value=100, step=1, value=70)
@@ -24,9 +25,20 @@ if worker_option == "Resizer":
             height, width = Resizer().percentage_resize_details(uploaded_file=uploaded_files, percentage_value=percenatge_value)
             st.warning("You want to set the new size to be 90% of the original size which is {}*{}".format(width, height))
 
-            if st.button("Resize"):
+            if st.button("Resize The Image"):
                 Resizer().percentage_resizing(percentage_value=percenatge_value, uploaded_file=uploaded_files)
 
+        
+        elif resizer_option == "Dimensions":
+
+            img_width, img_height = Resizer().image_dimensions(uploaded_files)
+
+            height = st.number_input("Enter the new Height of the image: ", min_value=1, max_value=img_height, step=1, value=int(img_height*50/100))
+            width = st.number_input("Enter the new Width of the image: ", min_value=1, max_value=img_width, step=1, value=int(img_width*50/100))
+
+            if st.button("Resize The Image"):
+                Resizer().dimension_resizing(height=height, width=width, uploaded_file=uploaded_files)
+    
 elif worker_option == "Convertor":
 
 
