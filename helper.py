@@ -6,10 +6,11 @@ import streamlit as st
 import base64
 from datetime import datetime
 import img2pdf
+from PIL import Image
 
 def update_secondary_col(primary_col):
 
-    secondary_format_list = ["jpg", "png", "pdf"]
+    secondary_format_list = ["jpg", "jpeg", "png", "pdf"]
 
     secondary_format_list.remove(primary_col)
 
@@ -88,3 +89,46 @@ class ConvertImageToPdf:
                     """,
                     unsafe_allow_html=True,
                 )
+
+
+class ConvertImageToImage:
+
+    def __init__(self) -> None:
+        pass
+
+    def convert(self, secondary_format, uploaded_file):
+
+        if secondary_format == "jpg":
+            secondary_format = "jpeg"
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+
+            with open(os.path.join(temp_dir, uploaded_file.name), "wb") as f:
+                    f.write(uploaded_file.getbuffer())
+            
+            img_path = os.path.join(temp_dir, uploaded_file.name)
+            save_image_path = "{}/{}.{}".format(temp_dir, str(uploaded_file.name).split(".")[0], secondary_format)
+
+            img = Image.open(img_path)
+            rgb_img = img.convert("RGB")
+            rgb_img.save(save_image_path, str(secondary_format).upper())
+
+            zip_path = os.path.join(temp_dir, "images.zip")
+            with zipfile.ZipFile(zip_path, "w") as zip:
+                zip.write(save_image_path,  "{}.{}".format(str(uploaded_file.name).split(".")[0], secondary_format))
+            
+            with open(zip_path, "rb") as f:
+                encoded = base64.b64encode(f.read()).decode()
+
+            now = datetime.now()
+            formatted_date_time = now.strftime("%Y-%m-%d_%H_%M_%S")
+
+            st.markdown(
+                    f"""
+                    <a href="data:application/zip;base64,{encoded}" download="converted_images_{formatted_date_time}.zip">
+                        <h3>Download Images</h3>
+                    </a>
+                    """,
+                    unsafe_allow_html=True,
+                )
+                
