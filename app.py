@@ -45,9 +45,12 @@ if worker_option == "Resizer":
     
 
         elif resizer_option == "Image Size":
-
-            image_size = st.number_input("Enter the size of the image you want to resize to: ", min_value=1, step=1)
-            image_size_format = st.selectbox("Enter the Image size type: ", options=["KB", "MB"])
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                image_size = st.number_input("Enter the size of the image you want to resize to: ", min_value=1, step=1)
+            with col2:
+                image_size_format = st.selectbox("Enter the Image size type: ", options=["KB", "MB"])
             
             check = Resizer().image_size_resizing_check(uploaded_file=uploaded_files, image_size=image_size, size_format=image_size_format)
 
