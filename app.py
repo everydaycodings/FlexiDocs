@@ -7,10 +7,14 @@ imagetopdf = ["jpg", "png", "jpeg"]
 imagetoimage_primary = ["jpg", "png", "jpeg"]
 imagetoimage_secondry = ["jpg", "png", "jpeg"]
 
+st.header("Welcome To FlexiDocs")
+
 worker_option = st.selectbox("Selet the Option: ", options=["Resizer", "Convertor"])
 
 
 if worker_option == "Resizer":
+
+    st.subheader("Resize your Image as your wish")
     
     resizer_option = st.selectbox("Select your Prefered Resizer: ", options=["Percentage", "Dimensions", "Image Size"])
 
@@ -23,7 +27,7 @@ if worker_option == "Resizer":
             percenatge_value = st.number_input("Enter the Percentage you want to reduce to: ", min_value=1, max_value=100, step=1, value=70)
             
             height, width = Resizer().percentage_resize_details(uploaded_file=uploaded_files, percentage_value=percenatge_value)
-            st.warning("You want to set the new size to be 90% of the original size which is {}*{}".format(width, height))
+            st.warning("You want to set the new size to be {}% of the original size which is {}*{}".format(percenatge_value, width, height))
 
             if st.button("Resize The Image"):
                 Resizer().percentage_resizing(percentage_value=percenatge_value, uploaded_file=uploaded_files)
@@ -57,7 +61,7 @@ if worker_option == "Resizer":
 elif worker_option == "Convertor":
 
 
-    st.header("Convert your files from one format to another: ")
+    st.subheader("Convert your files from one format to another: ")
 
 
     col1, col2 = st.columns(2)
