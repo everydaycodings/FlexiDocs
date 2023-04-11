@@ -1,11 +1,12 @@
 import streamlit as st
 from helper import update_secondary_col, ConvertPdfToX, ConvertImageToPdf, ConvertImageToImage, Resizer
 from io import BytesIO
-
+from helper import video_to_video
 
 imagetopdf = ["jpg", "png", "jpeg"]
 imagetoimage_primary = ["jpg", "png", "jpeg"]
 imagetoimage_secondry = ["jpg", "png", "jpeg"]
+video_format = ["mp4", "mov", "mkv", "gif"]
 
 st.header("Welcome To FlexiDocs")
 
@@ -70,7 +71,7 @@ elif worker_option == "Convertor":
     col1, col2 = st.columns(2)
 
     with col1:
-        primary_format = st.selectbox("Select the format of your file: ", options=["jpg", "jpeg", "png", "pdf"])
+        primary_format = st.selectbox("Select the format of your file: ", options=["jpg", "jpeg", "png", "pdf", "mp4", "mov", "mkv", "gif"])
     with col2:
         secondary_format = st.selectbox("Select the format you want to convert your file: ", options=update_secondary_col(primary_col=primary_format))
 
@@ -80,6 +81,9 @@ elif worker_option == "Convertor":
         uploaded_files = st.file_uploader("Choose a file", accept_multiple_files=True)
     elif primary_format in imagetoimage_primary and secondary_format in imagetoimage_secondry:
         uploaded_files = st.file_uploader("Choose a file")
+    
+    elif primary_format in video_format and secondary_format in video_format:
+        uploaded_files = st.file_uploader("Choose a file", accept_multiple_files=True)
 
     submitted = st.button("Convert")
 
@@ -100,3 +104,6 @@ elif worker_option == "Convertor":
             
             elif primary_format in imagetoimage_primary and secondary_format in imagetoimage_secondry:
                 ConvertImageToImage().convert(secondary_format, uploaded_files)
+            
+            elif primary_format in video_format and secondary_format in video_format:
+                video_to_video(uploaded_files, secondary_format)

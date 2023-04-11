@@ -7,14 +7,23 @@ import base64
 from datetime import datetime
 import img2pdf
 from PIL import Image
+from moviepy.editor import VideoFileClip
+
+
 
 def update_secondary_col(primary_col):
+    video_format = ["mp4", "mov", "mkv", "gif"]
 
-    secondary_format_list = ["jpg", "jpeg", "png", "pdf"]
+    if primary_col in video_format:
+        video_format.remove(primary_col)
+        return video_format
 
-    secondary_format_list.remove(primary_col)
+    else:
+        secondary_format_list = ["jpg", "jpeg", "png", "pdf"]
 
-    return secondary_format_list
+        secondary_format_list.remove(primary_col)
+
+        return secondary_format_list
 
 
 def download_button(encoded, file_name):
@@ -30,6 +39,39 @@ def download_button(encoded, file_name):
                     """,
                     unsafe_allow_html=True,
                 )
+
+
+def video_to_video(uploaded_files, secondary_format):
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+
+        for uploaded_file in uploaded_files:
+            asset_path = os.path.join(temp_dir, str(uploaded_file.name).split(".")[0])
+
+            with open(asset_path, "wb") as f:
+                f.write(uploaded_file.getbuffer())
+
+                videoClip = VideoFileClip(asset_path)
+
+                if secondary_format == "gif":
+                    videoClip.write_gif("{}/{}.{}".format(temp_dir, str(uploaded_file.name).split(".")[0], secondary_format))
+                else:
+                    videoClip.write_videofile("{}/{}.{}".format(temp_dir, str(uploaded_file.name).split(".")[0], secondary_format), codec='libx264')
+        
+        gif_list = [file for file in os.listdir(temp_dir) if file.endswith('.{}'.format(secondary_format))]
+        zip_path = os.path.join(temp_dir, "gif_files.zip")
+
+        with zipfile.ZipFile(zip_path, 'w') as zip:
+            for gif_file in gif_list:
+                if gif_file.endswith('.{}'.format(secondary_format)):
+                    zip.write(os.path.join(temp_dir, gif_file))
+        
+        with open(zip_path, "rb") as f:
+                encoded = base64.b64encode(f.read()).decode()
+
+        download_button(encoded=encoded, file_name="gif_images")
+
+
 
 
 class ConvertPdfToX:
