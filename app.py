@@ -3,6 +3,20 @@ from helper import update_secondary_col, ConvertPdfToX, ConvertImageToPdf, Conve
 from io import BytesIO
 from helper import video_to_video
 
+
+st.set_page_config(
+     page_title="Crypto Twitter Analysis Web App",
+     page_icon="🧊",
+     layout="wide",
+     initial_sidebar_state="expanded",
+     menu_items={
+         'Get Help': 'https://github.com/everydaycodings',
+         'About': "Flexidocs is a web app that allows you to convert images from one format to another and resize your images using various options such as dimensions, percentage, and image size. #### Github Code: (Click HERE)[https://github.com/everydaycodings/FlexiDocs]"
+     }
+)
+
+
+
 imagetopdf = ["jpg", "png", "jpeg"]
 imagetoimage_primary = ["jpg", "png", "jpeg"]
 imagetoimage_secondry = ["jpg", "png", "jpeg"]
